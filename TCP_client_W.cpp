@@ -39,7 +39,7 @@ ADDRINFO install_properties(void)
 int main()
 {
 	int result_conn, result_info;
-	SOCKET ConnectSocket = INVALID_SOCKET;
+	SOCKET connectSocket = INVALID_SOCKET;
 	ADDRINFO* addr_result = NULL;
 	
 	ADDRINFO hints = install_properties();
@@ -48,11 +48,16 @@ int main()
 
 	if (result_info != 0) {
 		printf("ERROR GET ADDRESS INFO");
+		WSACleanup();
 		return -1;
 	}
 
 
-	ConnectSocket = socket(addr_result->ai_family, addr_result->ai_socktype, addr_result->ai_protocol);
-
+	connectSocket = socket(addr_result->ai_family, addr_result->ai_socktype, addr_result->ai_protocol);
+	if (connectSocket == INVALID_SOCKET) {
+		printf("ERROR CREATE SOCKET");
+		WSACleanup();
+		return -1;	
+	}
 
 }
