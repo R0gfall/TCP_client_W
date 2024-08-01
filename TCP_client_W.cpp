@@ -56,8 +56,23 @@ int main()
 	connectSocket = socket(addr_result->ai_family, addr_result->ai_socktype, addr_result->ai_protocol);
 	if (connectSocket == INVALID_SOCKET) {
 		printf("ERROR CREATE SOCKET");
+		freeaddrinfo(addr_result);
 		WSACleanup();
 		return -1;	
+	}
+
+	result_conn = connect(connectSocket, addr_result->ai_addr, (int)addr_result->ai_addrlen);
+
+	if (result_conn == SOCKET_ERROR) {
+		printf("ERROR CONNECT SOCKET");
+
+		closesocket(connectSocket);
+		connectSocket = INVALID_SOCKET;
+		freeaddrinfo(addr_result);
+		deinit();
+		return 1;
+
+
 	}
 
 }
