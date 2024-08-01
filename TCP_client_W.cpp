@@ -42,16 +42,17 @@ int main()
 	SOCKET connectSocket = INVALID_SOCKET;
 	ADDRINFO* addr_result = NULL;
 	
-	ADDRINFO hints = install_properties();
+	init();
 
+	ADDRINFO hints = install_properties();
 	result_info = getaddrinfo("localhost", "9000", &hints, &addr_result);
 
+	// printf("%d\n", result_info);
 	if (result_info != 0) {
 		printf("ERROR GET ADDRESS INFO");
 		WSACleanup();
 		return -1;
 	}
-
 
 	connectSocket = socket(addr_result->ai_family, addr_result->ai_socktype, addr_result->ai_protocol);
 	if (connectSocket == INVALID_SOCKET) {
