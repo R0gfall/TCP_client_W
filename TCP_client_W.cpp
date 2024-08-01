@@ -36,11 +36,13 @@ ADDRINFO install_properties(void)
 
 
 
+
 int main()
 {
 	int result_conn, result_info;
 	SOCKET connectSocket = INVALID_SOCKET;
 	ADDRINFO* addr_result = NULL;
+	const char* sendBuffer = "Hello from Client!";
 	
 	init();
 
@@ -73,7 +75,17 @@ int main()
 		deinit();
 		return 1;
 
+	}
 
+	result_conn = send(connectSocket, sendBuffer, (int)strlen(sendBuffer), 0);
+
+	if (result_conn == SOCKET_ERROR) {
+		printf("ERROR SEND MESSAGE");
+
+		closesocket(connectSocket);
+		freeaddrinfo(addr_result);
+		deinit();
+		return 1;
 	}
 
 }
