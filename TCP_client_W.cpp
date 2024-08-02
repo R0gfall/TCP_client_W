@@ -1,4 +1,6 @@
-﻿#define WIN32_LEAN_AND_MEAN
+﻿#define _CRT_SECURE_NO_WARNINGS
+#define WIN32_LEAN_AND_MEAN
+
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -45,6 +47,16 @@ ADDRINFO install_properties(void)
 //}
 
 
+void send_one_line_msg(SOCKET connectSocket, FILE* file) {
+
+	char buffer[6];
+
+	fscanf(file, "%s", buffer);
+
+	printf(buffer);
+
+
+}
 
 
 
@@ -117,13 +129,13 @@ int main()
 		return 1;
 	}
 		
-	while (1) {
-
+	
+	FILE* file = fopen("test.txt", "r");
+	if (file == NULL) {
+		printf(">>>>>\n");
 	}
-	
-	
-	
 
+	send_one_line_msg(connectSocket, file);
 
 
 
