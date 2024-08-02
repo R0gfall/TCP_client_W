@@ -8,6 +8,10 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
+#define p_ASCII 0x70
+#define u_ASCII 0x75
+#define t_ASCII 0x74
+
 
 int init()
 {
@@ -35,6 +39,14 @@ ADDRINFO install_properties(void)
 }
 
 
+//int first_message_to_conn(SOCKET connectSocket)
+//{
+//	
+//}
+
+
+
+
 
 
 int main()
@@ -42,7 +54,7 @@ int main()
 	int result_conn, result_info;
 	SOCKET connectSocket = INVALID_SOCKET;
 	ADDRINFO* addr_result = NULL;
-	const char* sendBuffer = "Hello from Client!";
+	const char* sendBuffer = "put";
 	
 	init();
 
@@ -65,21 +77,38 @@ int main()
 	}
 
 	result_conn = connect(connectSocket, addr_result->ai_addr, (int)addr_result->ai_addrlen);
-
 	if (result_conn == SOCKET_ERROR) {
-		printf("ERROR CONNECT SOCKET");
+		for (int i = 1; i < 10; i++) {
+			result_conn = connect(connectSocket, addr_result->ai_addr, (int)addr_result->ai_addrlen);
 
-		closesocket(connectSocket);
-		connectSocket = INVALID_SOCKET;
+			if (result_conn == SOCKET_ERROR) {
+				printf("ERROR CONNECT SOCKET\n");
+
+				closesocket(connectSocket);
+				connectSocket = INVALID_SOCKET;
+
+			}
+
+			int timer = 0;
+			while (timer < 100) {
+				timer++;
+			}
+		}
+	}
+
+	if (result_conn == INVALID_SOCKET) {
+		printf("ERROR 10 TIMES CONNECT\n");
 		freeaddrinfo(addr_result);
 		deinit();
 		return 1;
-
 	}
+
+	
 
 	result_conn = send(connectSocket, sendBuffer, (int)strlen(sendBuffer), 0);
 
 	if (result_conn == SOCKET_ERROR) {
+
 		printf("ERROR SEND MESSAGE");
 
 		closesocket(connectSocket);
@@ -87,5 +116,17 @@ int main()
 		deinit();
 		return 1;
 	}
+		
+	while (1) {
+
+	}
+	
+	
+	
+
+
+
+
+
 
 }
