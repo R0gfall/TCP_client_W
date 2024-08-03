@@ -41,21 +41,43 @@ ADDRINFO install_properties(void)
 }
 
 
-//int first_message_to_conn(SOCKET connectSocket)
-//{
-//	
-//}
+int first_message_to_conn(SOCKET connectSocket)
+{
+	const char buffer[] = "put";
+	int result_conn = SOCKET_ERROR;
+
+	if (result_conn = send(connectSocket, buffer, (int)strlen(buffer), 0) == SOCKET_ERROR) {
+		printf("ERROR FUNC TO FIRST CONNECT");
+		return -1;
+	}
+	return 1;
+
+}
 
 
-void send_one_line_msg(SOCKET connectSocket, FILE* file) {
+int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 	char buffer[6];
+	
+	// dd.mm.yyyy hh:mm:ss hh:mm:ss Message
+
+	/*Сначала отправляется 4 байта - номер сообщения в исходном файле, целое 32 - битное число в СЕТЕВОМ порядке байтов, индексация от 0.
+	затем 4 байта - значение даты, unsigned int, рассчитанный как yyyy * 10000 + mm * 100 + dd, передается в СЕТЕВОМ порядке байтов;
+	затем 4 байта - значение первого времени, unsigned int, рассчитано как hh * 10000 + mm * 100 + ss, передается в СЕТЕВОМ порядке байтов;
+	затем 4 байта - значение часов, минут и секунд второго времени(в том же формате),
+	затем 4 байта - длина поля Message в символах, unsigned int, в СЕТЕВОМ порядке байтов,
+	затем N байт - символы самого поля Message.
+	*/
+
+	int count_line_INET = htons(count_line);
+
+	
+
 
 	fscanf(file, "%s", buffer);
-
 	printf(buffer);
 
-
+	return count_line++;
 }
 
 
@@ -63,11 +85,12 @@ void send_one_line_msg(SOCKET connectSocket, FILE* file) {
 
 int main()
 {
-	int result_conn, result_info;
+	int result_conn, result_info, result_put;
 	SOCKET connectSocket = INVALID_SOCKET;
 	ADDRINFO* addr_result = NULL;
 	const char* sendBuffer = "put";
-	
+	int count_line = 0;
+
 	init();
 
 	ADDRINFO hints = install_properties();
@@ -117,7 +140,7 @@ int main()
 
 	
 
-	result_conn = send(connectSocket, sendBuffer, (int)strlen(sendBuffer), 0);
+	/*result_conn = send(connectSocket, sendBuffer, (int)strlen(sendBuffer), 0);
 
 	if (result_conn == SOCKET_ERROR) {
 
@@ -127,15 +150,26 @@ int main()
 		freeaddrinfo(addr_result);
 		deinit();
 		return 1;
-	}
+	}*/
 		
-	
 	FILE* file = fopen("test.txt", "r");
 	if (file == NULL) {
 		printf(">>>>>\n");
 	}
 
-	send_one_line_msg(connectSocket, file);
+
+	// translate msg
+
+	result_put = first_message_to_conn(connectSocket);  //first message "put"
+	if (result_put == -1) {
+		closesocket(connectSocket);
+		freeaddrinfo(addr_result);
+		deinit();
+		return 1;
+	}
+
+
+	count_line = send_one_line_msg(connectSocket, file, count_line); //first line message
 
 
 
