@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <arpa/inet.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -58,6 +59,7 @@ int first_message_to_conn(SOCKET connectSocket)
 int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 	char buffer[6];
+	int result_conn;
 	
 	// dd.mm.yyyy hh:mm:ss hh:mm:ss Message
 
@@ -69,8 +71,10 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	затем N байт - символы самого поля Message.
 	*/
 
-	int count_line_INET = htons(count_line);
-
+	char count_line_INET_str[] = inet_aton(htonl(count_line));
+	printf("%d\n", count_line_INET);
+	
+	//result_conn = send(connectSocket, count_line_INET, );
 	
 
 
@@ -89,7 +93,7 @@ int main()
 	SOCKET connectSocket = INVALID_SOCKET;
 	ADDRINFO* addr_result = NULL;
 	const char* sendBuffer = "put";
-	int count_line = 0;
+	int count_line = 20;
 
 	init();
 
