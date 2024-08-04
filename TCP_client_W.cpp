@@ -4,7 +4,7 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <arpa/inet.h>
+
 
 #include <stdio.h>
 #include <string.h>
@@ -58,8 +58,8 @@ int first_message_to_conn(SOCKET connectSocket)
 
 int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
-	char buffer[6];
-	int result_conn;
+	char buffer[2];
+	int result_conn, result_recv;
 	
 	// dd.mm.yyyy hh:mm:ss hh:mm:ss Message
 
@@ -71,15 +71,27 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	затем N байт - символы самого поля Message.
 	*/
 
-	char count_line_INET_str[] = inet_aton(htonl(count_line));
-	printf("%d\n", count_line_INET);
-	
-	//result_conn = send(connectSocket, count_line_INET, );
-	
-
-
 	fscanf(file, "%s", buffer);
-	printf(buffer);
+	printf("%s\n", buffer);
+
+
+	unsigned int count_line_INET = htonl(count_line);
+
+	printf("%d\n", count_line);
+	
+	//result_conn = send(connectSocket, (char*)&count_line_INET, sizeof(count_line_INET), 0);
+	result_conn = send(connectSocket, (char*)&count_line_INET, sizeof(count_line_INET), 0);
+	printf("%d\n", count_line_INET);
+	// printf("%d, %d\n", result_conn, sizeof(count_line_INET));
+	
+	result_recv = recv(connectSocket, buffer, 2, 0);
+
+	printf("%d\n", result_recv);
+	
+
+
+	/*fscanf(file, "%s", buffer);
+	printf(buffer);*/
 
 	return count_line++;
 }
@@ -93,7 +105,7 @@ int main()
 	SOCKET connectSocket = INVALID_SOCKET;
 	ADDRINFO* addr_result = NULL;
 	const char* sendBuffer = "put";
-	int count_line = 20;
+	int count_line = 0;
 
 	init();
 
@@ -172,11 +184,13 @@ int main()
 		return 1;
 	}
 
-
+	printf("%d\n", count_line);
 	count_line = send_one_line_msg(connectSocket, file, count_line); //first line message
 
 
+	while (true) {
 
+	}
 
 
 }
