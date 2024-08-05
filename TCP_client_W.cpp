@@ -77,13 +77,18 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 	unsigned int count_line_INET = htonl(count_line);
 
-	printf("%d\n", count_line);
+	//printf("%d\n", count_line);
 	
 	//result_conn = send(connectSocket, (char*)&count_line_INET, sizeof(count_line_INET), 0);
+
 	result_conn = send(connectSocket, (char*)&count_line_INET, sizeof(count_line_INET), 0);
 	printf("%d\n", count_line_INET);
 	// printf("%d, %d\n", result_conn, sizeof(count_line_INET));
-	
+
+
+	//result_conn = send(connectSocket, (char*)&count_line_INET, sizeof(count_line_INET), 0);
+
+
 	result_recv = recv(connectSocket, buffer, 2, 0);
 
 	printf("%d\n", result_recv);
@@ -188,9 +193,7 @@ int main()
 	count_line = send_one_line_msg(connectSocket, file, count_line); //first line message
 
 
-	while (true) {
-
-	}
+	
 
 
 }
