@@ -46,11 +46,24 @@ int first_message_to_conn(SOCKET connectSocket)
 {
 	const char buffer[] = "put";
 	int result_conn = SOCKET_ERROR;
+	int size = strlen(buffer);
+	int sent = 0;
 
-	if (result_conn = send(connectSocket, buffer, (int)strlen(buffer), 0) == SOCKET_ERROR) {
+	/*if (result_conn = send(connectSocket, buffer, (int)strlen(buffer), 0) == SOCKET_ERROR) {
 		printf("ERROR FUNC TO FIRST CONNECT");
 		return -1;
+	}*/
+	while (sent < size)
+	{
+		//printf(">>>>>>");
+		// Отправка очередного блока данных
+		int res = send(connectSocket, buffer + sent, size - sent, 0);
+		if (res < 0)
+			return -1;
+		sent += res;
+		printf(" %d bytes sent.\n", sent);
 	}
+
 	return 1;
 
 }
@@ -60,6 +73,8 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 	char buffer[2];
 	int result_conn, result_recv;
+	int int_buffer[3];
+	unsigned int summ_date;
 	
 	// dd.mm.yyyy hh:mm:ss hh:mm:ss Message
 
@@ -71,9 +86,9 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	затем N байт - символы самого поля Message.
 	*/
 
-	fscanf(file, "%s", buffer);
-	printf("%s\n", buffer);
 
+
+	//printf("%d %d %d\n", int_buffer[0], int_buffer[1], int_buffer[2]);
 
 	unsigned int count_line_INET = htonl(count_line);
 
@@ -81,17 +96,63 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	
 	//result_conn = send(connectSocket, (char*)&count_line_INET, sizeof(count_line_INET), 0);
 
+	//int size = strlen();
+
+	//while (sent < size)
+	//{
+	//	// Отправка очередного блока данных
+	//	int res = send(s, request + sent, size - sent, 0);
+	//	if (res < 0)
+	//		return -1;
+	//	sent += res;
+	//	printf(" %d bytes sent.\n", sent);
+	//}
+
+	//int sent = 0;
+	//int size = sizeof(count_line_INET);
+
+	//while (sent < size)
+	//{
+	//	// Отправка очередного блока данных
+	//	int res = send(connectSocket, count_line_INET + sent, size - sent, flags);
+	//	if (res < 0)
+	//		return sock_err("send", s);
+	//	sent += res;
+	//	printf(" %d bytes sent.\n", sent);
+	//}
+	//return 0;
+
 	result_conn = send(connectSocket, (char*)&count_line_INET, sizeof(count_line_INET), 0);
 	printf("%d\n", count_line_INET);
 	// printf("%d, %d\n", result_conn, sizeof(count_line_INET));
 
+	char buffer_recv[256];
+	int res;
+	// Принятие очередного блока данных. 
+	// Если соединение будет разорвано удаленным узлом recv вернет 0
+	while ((res = recv(connectSocket, buffer_recv, sizeof(buffer_recv), 0)) > 0)
+	{
+		printf("111");
+		//fwrite(buffer_recv, 1, res, f);
+		printf(" %d bytes received\n", res);
+	}
+	if (res < 0)
+		return -1;
+	return 0;
 
-	//result_conn = send(connectSocket, (char*)&count_line_INET, sizeof(count_line_INET), 0);
+
+	// date send
+
+	fscanf(file, "%d.%d.%d", &int_buffer[0], &int_buffer[1], &int_buffer[2]);
+	
+	summ_date = int_buffer[0] + int_buffer[1] * 100 + int_buffer[2] * 10000;
+
+	result_conn = send(connectSocket, (char*)&summ_date, sizeof(summ_date), 0);
 
 
-	result_recv = recv(connectSocket, buffer, 2, 0);
+	//result_recv = recv(connectSocket, buffer, 2, 0);
 
-	printf("%d\n", result_recv);
+	//printf("%d\n", result_recv);
 	
 
 
@@ -194,6 +255,8 @@ int main()
 
 
 	
+	while (1) {
 
+	}
 
 }
