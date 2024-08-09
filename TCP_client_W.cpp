@@ -224,21 +224,13 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	//	return -1;
 	//return 0;
 
-	char* buffer_recv = (char*)malloc(1);
-	//char buffer_recv[2];
-
-	//printf("\n%d\n", strlen(buffer_recv));
+	char* buffer_recv = (char*)malloc(2);
 
 	result_recv = recv(connectSocket, buffer_recv, 2, 0);
 	printf("\n____________%s\n", buffer_recv);
 
 	printf("%d\n", result_recv);
-	
 
-
-	/*fscanf(file, "%s", buffer);
-	printf(buffer);*/
-	printf("2121212121");
 	return count_line++;
 }
 
