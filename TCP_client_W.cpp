@@ -95,7 +95,7 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 	//printf("%d\n", count_line);
 	
-	result_conn = send(connectSocket, (char*)&count_line_INET, sizeof(count_line_INET), 0);
+	result_conn = send(connectSocket, (char*)&count_line_INET, 4, 0);
 
 	printf(">>%d\n",result_conn);
 	//int size = strlen();
@@ -153,7 +153,9 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	
 	summ_date = int_buffer[0] + int_buffer[1] * 100 + int_buffer[2] * 10000;
 
-	result_conn = send(connectSocket, (char*)&summ_date, 8, 0);
+	unsigned int summ_date_INET = htonl(summ_date);
+
+	result_conn = send(connectSocket, (char*)&summ_date_INET, 4, 0);
 
 	printf("%d\n", summ_date);
 	printf(">>%d\n", result_conn);
@@ -164,7 +166,10 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 	summ_date = int_buffer[0] * 10000 + int_buffer[1] * 100 + int_buffer[2];
 		
-	result_conn = send(connectSocket, (char*)&summ_date, 6, 0);
+
+	summ_date_INET = htonl(summ_date);
+
+	result_conn = send(connectSocket, (char*)&summ_date_INET, 4, 0);
 
 	printf("%d\n", summ_date);
 
@@ -174,14 +179,35 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 	summ_date = int_buffer[0] * 10000 + int_buffer[1] * 100 + int_buffer[2];
 
-	result_conn = send(connectSocket, (char*)&summ_date, 6, 0);
+
+	summ_date_INET = htonl(summ_date);
+
+	result_conn = send(connectSocket, (char*)&summ_date_INET, 4, 0);
 
 	printf("%d\n", summ_date);
 
+	// len msg send
+	fscanf(file, "%s", &message_buf);
+	
+
+
+	int len_message = strlen((char*)message_buf);
+	int len_msg_INET = htonl(len_message);
+	printf("%d, %d\n", len_message, len_msg_INET);
+
+
+	result_conn = send(connectSocket, (char*)len_msg_INET, 4, 0);
+
+
+
+
+
+
 	// msg send
 
-	fscanf(file, "%s", &message_buf);
-	printf("%s\n", message_buf);
+	/*fscanf(file, "%s", &message_buf);
+	printf("%s\n", message_buf);*/
+
 	//printf("%d\n", strlen((char*)message_buf));
 
 
@@ -199,7 +225,7 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 		printf(" %d bytes sent.\n", sent);
 	}
 
-
+	printf("%s\n", message_buf);
 
 	//result_conn = send(connectSocket, (char*)&message_buf, strlen((char*)message_buf), 0);
 
