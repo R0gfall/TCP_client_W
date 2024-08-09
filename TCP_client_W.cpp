@@ -151,27 +151,28 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	while (sent < len_message)
 	{
 		// Отправка очередного блока данных
-		int result_conn = send(connectSocket, (char*)message_buf + sent, 4, 0);
+		int result_conn = send(connectSocket, message_buf + sent, 1, 0);
 		if (result_conn < 0)
 			return -1;
 		sent += result_conn;
 		printf("MSG SEND: %d bytes sent.\n", sent);
 	}
 
-	result_conn = send(connectSocket, (char*)message_buf, len_message, 0);
-
-	printf("ALL MESSAGE bytes send %s\n", message_buf);
+	printf("ALL MESSAGE bytes send: %s", message_buf);
 
 
 	// recv get
 
-	buffer_recv = (char*)malloc(2);
-	result_recv = recv(connectSocket, buffer_recv, 2, 0);
+	buffer_recv = (char*)malloc(2 * sizeof(char));
+	result_recv = recv(connectSocket, buffer_recv, 1, 0);
+
+
 
 	printf("RECV FORM %s\n", buffer_recv);
-	printf("RECV bytes send %d\n", result_recv);
+	printf("RECV bytes send %d\n\n", result_conn);
 
-	return count_line++;
+	count_line++;
+	return count_line;
 }
 
 
@@ -273,8 +274,10 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	count_line = send_one_line_msg(connectSocket, file, count_line); //first line message
+	while (count_line < 5) {
 
-
+		count_line = send_one_line_msg(connectSocket, file, count_line); //first line message
+		printf(">>>%d\n", count_line);
+	}
 
 }
