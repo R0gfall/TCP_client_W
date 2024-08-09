@@ -5,7 +5,6 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -50,19 +49,14 @@ int first_message_to_conn(SOCKET connectSocket)
 	int size = strlen(buffer);
 	int sent = 0;
 
-	/*if (result_conn = send(connectSocket, buffer, (int)strlen(buffer), 0) == SOCKET_ERROR) {
-		printf("ERROR FUNC TO FIRST CONNECT");
-		return -1;
-	}*/
 	while (sent < size)
 	{
-		//printf(">>>>>>");
 		// Отправка очередного блока данных
 		int res = send(connectSocket, buffer + sent, size - sent, 0);
 		if (res < 0)
 			return -1;
 		sent += res;
-		printf("PUT bytes sent %d\n", sent);
+		printf("PUT bytes send %d\n", sent);
 	}
 
 	return 1;
@@ -153,7 +147,6 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 	// msg send
 
-
 	int sent = 0;
 	while (sent < len_message)
 	{
@@ -172,7 +165,6 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 	// recv get
 
-
 	buffer_recv = (char*)malloc(2);
 	result_recv = recv(connectSocket, buffer_recv, 2, 0);
 
@@ -185,13 +177,40 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 
 
-int main()
+int main(int argc, char* argv[])
 {
 	int result_conn, result_info, result_put;
 	SOCKET connectSocket = INVALID_SOCKET;
 	ADDRINFO* addr_result = NULL;
-	const char* sendBuffer = "put";
 	int count_line = 0;
+
+
+	char ip[16]; // Буфер для хранения IP-адреса
+	char port[6]; // Буфер для хранения порта
+
+	// Копируем входную строку, так как strtok изменяет исходную строку
+	char buffer[256];
+	strncpy(buffer, argv[1], sizeof(buffer));
+	buffer[sizeof(buffer) - 1] = '\0'; // Обеспечиваем нуль-терминатор
+
+	// Разделяем строку по символу ':'
+	char* token = strtok(buffer, ":");
+	if (token != NULL) {
+		// Считываем IP-адрес
+		strncpy(ip, token, sizeof(ip));
+		ip[sizeof(ip) - 1] = '\0'; // Обеспечиваем нуль-терминатор
+	}
+
+	token = strtok(NULL, ":");
+	if (token != NULL) {
+		// Считываем порт
+		strncpy(port, token, sizeof(port));
+		port[sizeof(port) - 1] = '\0'; // Обеспечиваем нуль-терминатор
+	}
+
+	printf("IP Address: %s\n", ip);
+	printf("Port: %s\n", port);
+
 
 	init();
 
@@ -240,23 +259,9 @@ int main()
 		return 1;
 	}
 
-	
-
-	/*result_conn = send(connectSocket, sendBuffer, (int)strlen(sendBuffer), 0);
-
-	if (result_conn == SOCKET_ERROR) {
-
-		printf("ERROR SEND MESSAGE");
-
-		closesocket(connectSocket);
-		freeaddrinfo(addr_result);
-		deinit();
-		return 1;
-	}*/
-		
-	FILE* file = fopen("test.txt", "r");
+	FILE* file = fopen(argv[2], "r");
 	if (file == NULL) {
-		printf(">>>>>\n");
+		printf("ERROR OPEN FILE\n");
 	}
 
 
@@ -270,7 +275,6 @@ int main()
 		return 1;
 	}
 
-	//printf("%d\n", count_line);
 	count_line = send_one_line_msg(connectSocket, file, count_line); //first line message
 
 
