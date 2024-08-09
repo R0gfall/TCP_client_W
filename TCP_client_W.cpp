@@ -62,7 +62,7 @@ int first_message_to_conn(SOCKET connectSocket)
 		if (res < 0)
 			return -1;
 		sent += res;
-		printf(" %d bytes sent.\n", sent);
+		printf("PUT bytes sent %d\n", sent);
 	}
 
 	return 1;
@@ -75,8 +75,10 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	char buffer[2];
 	int result_conn, result_recv;
 	int int_buffer[3];
-	unsigned int summ_date;
-	char* message_buf[8];
+	unsigned int summ_date, count_line_INET, summ_date_INET, len_message, len_msg_INET;
+	char message_buf[256];
+	char* ui_msg_buf;
+	char* buffer_recv;
 	
 	// dd.mm.yyyy hh:mm:ss hh:mm:ss Message
 
@@ -88,148 +90,94 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	затем N байт - символы самого поля Message.
 	*/
 
+	// >>> cnt msg
 
+	count_line_INET = htonl(count_line);
+	ui_msg_buf = (char*)(malloc(4));
+	memcpy(ui_msg_buf, &count_line_INET, 4);
 
-	//printf("%d %d %d\n", int_buffer[0], int_buffer[1], int_buffer[2]);
+	result_conn = send(connectSocket, ui_msg_buf, 4, 0);
 
-	unsigned int count_line_INET = htonl(count_line);
-
-	char* ab = (char*)(malloc(4));
-	memcpy(ab, &count_line_INET, 4);
-
-	//printf("<<<%d\n", ab);
-	//printf("%d\n", count_line);
-	
-	result_conn = send(connectSocket, ab, 4, 0);
-
-	printf(">>%d\n",result_conn);
-	
-	printf("%d\n", count_line_INET);
-	
-
-	//char buffer_recv[2];
-	int res;
+	printf("COUNT bytes send %d\n",result_conn);
 
 
 	// date send
 
 	fscanf(file, "%d.%d.%d ", &int_buffer[0], &int_buffer[1], &int_buffer[2]);
-	
 	summ_date = int_buffer[0] + int_buffer[1] * 100 + int_buffer[2] * 10000;
 
-	unsigned int summ_date_INET = htonl(summ_date);
+	summ_date_INET = htonl(summ_date);
+	memcpy(ui_msg_buf, &summ_date_INET, 4);
 
+	result_conn = send(connectSocket, ui_msg_buf, 4, 0);
+
+	printf("DATE bytes send %d\n", result_conn);
+
+
+	// time send
+
+	fscanf(file, "%d:%d:%d ", &int_buffer[0], &int_buffer[1], &int_buffer[2]);
+	summ_date = int_buffer[0] * 10000 + int_buffer[1] * 100 + int_buffer[2];
+
+	summ_date_INET = htonl(summ_date);
+	memcpy(ui_msg_buf, &summ_date_INET, 4);
+
+	result_conn = send(connectSocket, ui_msg_buf, 4, 0);
+
+	printf("TIME 1 bytes send %d\n", result_conn);
 	
-	memcpy(ab, &summ_date_INET, 4);
-
-	result_conn = send(connectSocket, ab, 4, 0);
-
-	printf("%d\n", summ_date);
-	printf(">>%d\n", result_conn);
 
 	// time send
 
 	fscanf(file, "%d:%d:%d ", &int_buffer[0], &int_buffer[1], &int_buffer[2]);
-
-	summ_date = int_buffer[0] * 10000 + int_buffer[1] * 100 + int_buffer[2];
-		
-
-	summ_date_INET = htonl(summ_date);
-
-	memcpy(ab, &summ_date_INET, 4);
-
-	result_conn = send(connectSocket, ab, 4, 0);
-
-	printf("%d\n", summ_date);
-
-	// time send
-
-	fscanf(file, "%d:%d:%d ", &int_buffer[0], &int_buffer[1], &int_buffer[2]);
-
 	summ_date = int_buffer[0] * 10000 + int_buffer[1] * 100 + int_buffer[2];
 
-
 	summ_date_INET = htonl(summ_date);
+	memcpy(ui_msg_buf, &summ_date_INET, 4);
 
-	memcpy(ab, &summ_date_INET, 4);
+	result_conn = send(connectSocket, ui_msg_buf, 4, 0);
 
-	result_conn = send(connectSocket, ab, 4, 0);
+	printf("TIME 2 bytes send %d\n", result_conn);
 
-	printf("%d\n", summ_date);
 
 	// len msg send
-	fscanf(file, "%s", &message_buf);
-	//strcat((char*)message_buf, "\n");
-	
 
+	fgets(message_buf, sizeof(message_buf), file);
+	len_message = strlen(message_buf);
 
-	unsigned int len_message = strlen((char*)message_buf);
-	//unsigned int a = 7;
-	unsigned int len_msg_INET = htonl(len_message);
-	printf("%u, %u\n", len_message, len_msg_INET);
+	len_msg_INET = htonl(len_message);
+	memcpy(ui_msg_buf, &len_msg_INET, 4);
 
-	memcpy(ab, &len_msg_INET, 4);
-
-	result_conn = send(connectSocket, ab, 4, 0);
-
-
-
-
+	result_conn = send(connectSocket, ui_msg_buf, 4, 0);
 
 
 	// msg send
 
-	/*fscanf(file, "%s", &message_buf);
-	printf("%s\n", message_buf);*/
 
-	//printf("%d\n", strlen((char*)message_buf));
+	int sent = 0;
+	while (sent < len_message)
+	{
+		// Отправка очередного блока данных
+		int result_conn = send(connectSocket, (char*)message_buf + sent, 4, 0);
+		if (result_conn < 0)
+			return -1;
+		sent += result_conn;
+		printf("MSG SEND: %d bytes sent.\n", sent);
+	}
 
+	result_conn = send(connectSocket, (char*)message_buf, len_message, 0);
 
-	//int sent = 0;
-	//int size = strlen((char*)message_buf);
-
-	//while (sent < size)
-	//{
-	//	//printf(">>>>>>");
-	//	// Отправка очередного блока данных
-	//	int res = send(connectSocket, (char*)message_buf + sent, 2, 0);
-	//	if (res < 0)
-	//		return -1;
-	//	sent += res;
-	//	printf(" %d bytes sent.\n", sent);
-	//}
-
-	res = send(connectSocket, (char*)message_buf, len_message, 0);
-
-	printf("%s", message_buf);
-
-	//result_conn = send(connectSocket, (char*)&message_buf, strlen((char*)message_buf), 0);
-
-	//printf(">>>%d\n", result_conn);
+	printf("ALL MESSAGE bytes send %s\n", message_buf);
 
 
-
-	//printf("%d %d %d\n", int_buffer[0], int_buffer[1], int_buffer[2]);
-
-
-	//result_conn = send(connectSocket, "stop", strlen("stop"), 0);
+	// recv get
 
 
-	//while ((res = recv(connectSocket, buffer, sizeof(buffer), 0)) > 0)
-	//{
-	//	//fwrite(buffer, 1, res, f);
-	//	printf(" %d bytes received\n", res);
-	//}
-	//if (res < 0)
-	//	return -1;
-	//return 0;
-
-	char* buffer_recv = (char*)malloc(2);
-
+	buffer_recv = (char*)malloc(2);
 	result_recv = recv(connectSocket, buffer_recv, 2, 0);
-	printf("\n____________%s\n", buffer_recv);
 
-	printf("%d\n", result_recv);
+	printf("RECV FORM %s\n", buffer_recv);
+	printf("RECV bytes send %d\n", result_recv);
 
 	return count_line++;
 }
