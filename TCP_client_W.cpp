@@ -184,7 +184,6 @@ int main(int argc, char* argv[])
 	ADDRINFO* addr_result = NULL;
 	int count_line = 0;
 
-
 	char ip[16]; // Буфер для хранения IP-адреса
 	char port[6]; // Буфер для хранения порта
 
@@ -211,11 +210,10 @@ int main(int argc, char* argv[])
 	printf("IP Address: %s\n", ip);
 	printf("Port: %s\n", port);
 
-
 	init();
 
 	ADDRINFO hints = install_properties();
-	result_info = getaddrinfo("localhost", "9000", &hints, &addr_result);
+	result_info = getaddrinfo(ip, port, &hints, &addr_result);
 
 	// printf("%d\n", result_info);
 	if (result_info != 0) {
