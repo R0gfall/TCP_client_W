@@ -16,6 +16,7 @@
 #define t_ASCII 0x74
 
 int FLAG = 0;
+int COUNT_OK = 0;
 
 
 int init()
@@ -147,11 +148,14 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	// len msg send
 
 	fgets(message_buf, sizeof(message_buf), file);
+	size_t len = strcspn(message_buf, "\n");
+	message_buf[len] = '\0';
+
 	len_message = strlen(message_buf);
 
 	len_msg_INET = htonl(len_message);
 	memcpy(ui_msg_buf, &len_msg_INET, 4);
-
+	
 	result_conn = send(connectSocket, ui_msg_buf, 4, 0);
 
 
@@ -169,17 +173,24 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	}
 
 	printf("ALL MESSAGE bytes send: %s", message_buf);
-
+	
 
 	// recv get
 
 	buffer_recv = (char*)malloc(2 * sizeof(char));
 	result_recv = recv(connectSocket, buffer_recv, 2, 0);
-
-
+	buffer_recv[result_recv] = '\0';
 
 	printf("\nRECV FORM %s\n", buffer_recv);
 	printf("RECV bytes send %d\n\n", result_conn);
+
+	if (strcmp(buffer_recv, "ok") == 0) {
+		
+		COUNT_OK += 1;
+		printf("OK GET IT!\n");
+	}
+
+
 
 	count_line++;
 	return count_line;
@@ -291,6 +302,25 @@ int main(int argc, char* argv[])
 			break;
 		}
 		printf(">>>%d\n", count_line);
+	}
+
+	char* buffer_recv;
+	int result_recv;
+
+	printf("%d, %d\n", count_line, COUNT_OK);
+	
+	while (count_line != COUNT_OK) {
+		buffer_recv = (char*)malloc(2 * sizeof(char));
+		result_recv = recv(connectSocket, buffer_recv, 2, 0);
+		buffer_recv[result_recv] = '\0';
+
+		printf("\nRECV FORM %s\n", buffer_recv);
+		printf("RECV bytes send %d\n\n", result_conn);
+
+		if (strcmp(buffer_recv, "ok") == 0) {
+			COUNT_OK++;
+			printf("OK GET IT!\n");
+		}
 	}
 
 }
