@@ -15,6 +15,8 @@
 #define u_ASCII 0x75
 #define t_ASCII 0x74
 
+int FLAG = 0;
+
 
 int init()
 {
@@ -86,6 +88,15 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 	// >>> cnt msg
 
+
+	// date send
+
+	if (fscanf(file, "%d.%d.%d ", &int_buffer[0], &int_buffer[1], &int_buffer[2]) != 3) {
+		FLAG = 1;
+		printf("END FILE\n");
+		return count_line;
+	}
+
 	count_line_INET = htonl(count_line);
 	ui_msg_buf = (char*)(malloc(4));
 	memcpy(ui_msg_buf, &count_line_INET, 4);
@@ -97,7 +108,6 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 
 	// date send
 
-	fscanf(file, "%d.%d.%d ", &int_buffer[0], &int_buffer[1], &int_buffer[2]);
 	summ_date = int_buffer[0] + int_buffer[1] * 100 + int_buffer[2] * 10000;
 
 	summ_date_INET = htonl(summ_date);
@@ -164,11 +174,11 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	// recv get
 
 	buffer_recv = (char*)malloc(2 * sizeof(char));
-	result_recv = recv(connectSocket, buffer_recv, 1, 0);
+	result_recv = recv(connectSocket, buffer_recv, 2, 0);
 
 
 
-	printf("RECV FORM %s\n", buffer_recv);
+	printf("\nRECV FORM %s\n", buffer_recv);
 	printf("RECV bytes send %d\n\n", result_conn);
 
 	count_line++;
@@ -274,9 +284,12 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	while (count_line < 5) {
+	while (1) {
 
 		count_line = send_one_line_msg(connectSocket, file, count_line); //first line message
+		if (FLAG == 1) {
+			break;
+		}
 		printf(">>>%d\n", count_line);
 	}
 
