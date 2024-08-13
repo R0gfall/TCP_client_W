@@ -5,5 +5,3 @@
 05.06.2015 18:00:59 00:05:01 stop2
 
 31.12.2029 18:00:59 00:07:01 stop
-
-dd.mm.yyyy hh:mm:ss hh:mm:ss Message
