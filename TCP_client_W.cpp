@@ -76,6 +76,7 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	char message_buf[256];
 	char* ui_msg_buf;
 	char* buffer_recv;
+	char string_msg[20];
 	
 	// dd.mm.yyyy hh:mm:ss hh:mm:ss Message
 
@@ -101,9 +102,10 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	count_line_INET = htonl(count_line);
 	printf(">>>>>>>>>>>>%d\n", count_line_INET);
 
-	char string_msg[20];
-	_itoa(count_line_INET, string_msg, 10);
-	printf("<<<<<%s\n", string_msg);
+	//char string_msg[20];
+
+	/*_itoa(count_line_INET, string_msg, 10);
+	printf("<<<<<%s\n", string_msg);*/
 
 
 	ui_msg_buf = (char*)(malloc(4));
