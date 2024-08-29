@@ -99,11 +99,19 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	}
 
 	count_line_INET = htonl(count_line);
+	printf(">>>>>>>>>>>>%d\n", count_line_INET);
+
+	char string_msg[20];
+	_itoa(count_line_INET, string_msg, 10);
+	printf("<<<<<%s\n", string_msg);
+
+
 	ui_msg_buf = (char*)(malloc(4));
 	memcpy(ui_msg_buf, &count_line_INET, 4);
 
 	result_conn = send(connectSocket, ui_msg_buf, 4, 0);
 
+	printf(">>>>>>>>>>>>%s\n", ui_msg_buf);
 	printf("COUNT bytes send %d\n",result_conn);
 
 
@@ -306,6 +314,7 @@ int main(int argc, char* argv[])
 
 	char* buffer_recv;
 	int result_recv;
+	
 
 	printf("%d, %d\n", count_line, COUNT_OK);
 	
