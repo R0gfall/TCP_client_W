@@ -73,7 +73,7 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	int result_conn, result_recv;
 	int int_buffer[3];
 	unsigned int summ_date, count_line_INET, summ_date_INET, len_message, len_msg_INET;
-	char message_buf[256];
+	char message_buf[1000000];
 	char* ui_msg_buf;
 	char* buffer_recv;
 	char string_msg[20];
@@ -158,6 +158,7 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	// len msg send
 
 	fgets(message_buf, sizeof(message_buf), file);
+	printf("%s\n", message_buf);
 	size_t len = strcspn(message_buf, "\n");
 	message_buf[len] = '\0';
 
@@ -167,7 +168,8 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	memcpy(ui_msg_buf, &len_msg_INET, 4);
 	
 	result_conn = send(connectSocket, ui_msg_buf, 4, 0);
-
+	printf("LEN MESSAGE bytes send %d\n", result_conn);
+	printf("<< %d\n", len);
 
 	// msg send
 
@@ -175,7 +177,7 @@ int send_one_line_msg(SOCKET connectSocket, FILE* file, int count_line) {
 	while (sent < len_message)
 	{
 		// Отправка очередного блока данных
-		int result_conn = send(connectSocket, message_buf + sent, 1, 0);
+		int result_conn = send(connectSocket, message_buf + sent, 16, 0);
 		if (result_conn < 0)
 			return -1;
 		sent += result_conn;
@@ -238,6 +240,12 @@ int main(int argc, char* argv[])
 		strncpy(port, token, sizeof(port));
 		port[sizeof(port) - 1] = '\0'; // Обеспечиваем нуль-терминатор
 	}
+
+
+	// port!!!
+	// NEED CHANGE
+	//port = 9003;
+
 
 	printf("IP Address: %s\n", ip);
 	printf("Port: %s\n", port);
